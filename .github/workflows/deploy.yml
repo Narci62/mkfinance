@@ -1,0 +1,39 @@
+name: Deploy Laravel Project
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install Composer Dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Install NPM Dependencies & Build
+        run: |
+          npm install
+          npm run build
+
+      - name: Deploy via FTP (LWS)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.LWS_FTP_SERVER }}
+          username: ${{ secrets.LWS_FTP_USERNAME }}
+          password: ${{ secrets.LWS_FTP_PASSWORD }}
+          local-dir: ./
+          server-dir: /public_html/ # Ou le dossier cible chez LWS
+          exclude: |
+            **/.git*
+            **/node_modules/**
+            storage/framework/cache/**

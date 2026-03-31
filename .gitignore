@@ -1,0 +1,8 @@
+storage/app/public/*
+vendor/
+vendor/*
+node_modules/*
+.env
+.env.local
+.env.*.local
+.phpunit.result.cache
