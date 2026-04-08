@@ -1,57 +1,44 @@
-# ===================== STAGE 1 : Build des assets Vite =====================
-FROM node:20-alpine AS vite-builder
+FROM webdevops/php-nginx:8.3-alpine
 
-WORKDIR /app
+# Installation dans votre Image du minimum pour que Docker fonctionne
+RUN apk add oniguruma-dev libxml2-dev
+RUN docker-php-ext-install \
+        bcmath \
+        ctype \
+        fileinfo \
+        mbstring \
+        pdo_mysql \
+        xml
 
-# Installation des dépendances Node
-COPY package*.json ./
-RUN npm ci --only=production
-
-# Copie du code source et build Vite
-COPY . .
-RUN npm run build
-
-# ===================== STAGE 2 : Application Laravel PHP =====================
-FROM php:8.3-fpm-alpine AS laravel-app
-
-# Installation des dépendances système
-RUN apk add --no-cache \
-    git \
-    curl \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    libwebp-dev \
-    libxpm-dev \
-    zip \
-    unzip \
-    supervisor \
-    nginx
-
-# Installation des extensions PHP nécessaires pour Laravel
-RUN docker-php-ext-install pdo_mysql bcmath gd opcache
-
-# Installation de Composer
+# Installation dans votre image de Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-WORKDIR /var/www/html
+# Installation dans votre image de NodeJS
+RUN apk add nodejs npm
 
-# Copie des fichiers Composer + installation des dépendances (sans dev)
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
-
-# Copie du code source Laravel
+ENV WEB_DOCUMENT_ROOT /app/public
+ENV APP_ENV production
+WORKDIR /app
 COPY . .
 
-# Copie des assets Vite depuis le stage précédent
-COPY --from=vite-builder /app/public/build ./public/build
+# On copie le fichier .env.example pour le renommer en .env
+# Vous pouvez modifier le .env.example pour indiquer la configuration de votre site pour la production
+RUN cp -n .env.example .env
 
-# Permissions Laravel
-RUN chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+# Installation et configuration de votre site pour la production
+# https://laravel.com/docs/10.x/deployment#optimizing-configuration-loading
+RUN composer install --no-interaction --optimize-autoloader --no-dev
+# Generate security key
+RUN php artisan key:generate
+# Optimizing Configuration loading
+RUN php artisan config:cache
+# Optimizing Route loading
+#RUN php artisan route:cache
+# Optimizing View loading
+#RUN php artisan view:cache
 
-# Configuration PHP (opcache pour la prod)
-COPY .docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+# Compilation des assets de Breeze (ou de votre site)
+RUN npm install
+RUN npm run build
 
-EXPOSE 9000
-
-CMD ["php-fpm"]
+RUN chown -R application:application .

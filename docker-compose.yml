@@ -1,53 +1,19 @@
-version: '3.9'
-
+version: "3.9"
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: ${REGISTRY:-registry.gitlab.com}/${PROJECT_PATH}/laravel-app:latest
-    container_name: laravel-app
-    restart: unless-stopped
-    working_dir: /var/www/html
-    depends_on:
-      - db
-    networks:
-      - laravel
-    environment:
-      - APP_ENV=production
-      - APP_DEBUG=false
-
   web:
-    image: nginx:alpine
-    container_name: laravel-web
+    build: .
     restart: unless-stopped
     ports:
-      - "80:80"
-    volumes:
-      - .:/var/www/html:ro
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-    networks:
-      - laravel
-    depends_on:
-      - app
-
+      - "8080:80"
   db:
-    image: mysql:8.0
-    container_name: laravel-db
+    image: mariadb:11.3
     restart: unless-stopped
+    ports:
+      - "3306:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
-      MYSQL_DATABASE: ${DB_DATABASE:-laravel}
-      MYSQL_USER: ${DB_USERNAME:-laravel}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      MARIADB_DATABASE: demo
+      MARIADB_USER: demo
+      MARIADB_PASSWORD: demo
+      MARIADB_ROOT_PASSWORD: root
     volumes:
-      - dbdata:/var/lib/mysql
-    networks:
-      - laravel
-
-networks:
-  laravel:
-    driver: bridge
-
-volumes:
-  dbdata:
+      - ./data/db:/var/lib/mysql
