@@ -37,8 +37,10 @@ RUN php artisan config:cache
 # Optimizing View loading
 #RUN php artisan view:cache
 
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 # Compilation des assets de Breeze (ou de votre site)
-RUN npm install
-RUN npm run build
+RUN npm ci
+#RUN npm install --verbose
+RUN npm run build --verbose
 
 RUN chown -R application:application .
