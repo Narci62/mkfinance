@@ -22,7 +22,6 @@ WORKDIR /app
 COPY . .
 
 # On copie le fichier .env.example pour le renommer en .env
-# Vous pouvez modifier le .env.example pour indiquer la configuration de votre site pour la production
 RUN cp -n .env.example .env
 
 # Installation et configuration de votre site pour la production
@@ -36,11 +35,10 @@ RUN php artisan config:cache
 #RUN php artisan route:cache
 # Optimizing View loading
 #RUN php artisan view:cache
-
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 # Compilation des assets de Breeze (ou de votre site)
 RUN npm ci
 #RUN npm install --verbose
-RUN npm run build --verbose
+#RUN npm run build --verbose
 
 RUN chown -R application:application .
