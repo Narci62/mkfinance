@@ -58,7 +58,10 @@ RUN npm ci
 #RUN npm install --verbose
 #RUN npm run build --verbose
 
+COPY /public/build /app/public/build
+
 RUN chown -R application:application .
+
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
