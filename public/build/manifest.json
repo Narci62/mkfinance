@@ -2241,6 +2241,12 @@
     "src": "resources/gassets/css/qrowd.css",
     "isEntry": true
   },
+  "resources/gassets/js/qrowd.js": {
+    "file": "assets/qrowd-B6IfqUSb.js",
+    "name": "qrowd",
+    "src": "resources/gassets/js/qrowd.js",
+    "isEntry": true
+  },
   "resources/js/app.js": {
     "file": "assets/app-z-Rg4TxU.js",
     "name": "app",

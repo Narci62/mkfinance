@@ -18,6 +18,7 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/js/pages/datatables.js',
                 'resources/gassets/css/qrowd.css',
+                'resources/gassets/js/qrowd.js',
                 'resources/gassets/css/qrowd-responsive.css',
             ],
             refresh: true,
